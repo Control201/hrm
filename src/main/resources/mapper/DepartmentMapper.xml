@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrm.dao.DepartmentMapper">
+    <resultMap id="BaseResultMap" type="com.hrm.bean.Department">
+        <id column="depId" jdbcType="INTEGER" property="depid" />
+        <result column="depLeader" jdbcType="VARCHAR" property="depleader" />
+        <result column="depName" jdbcType="VARCHAR" property="depname" />
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+    depId, depLeader, depName
+    </sql>
+
+    <select id="getAll" resultType="com.hrm.bean.Department">
+    SELECT
+    depId,depLeader,depName
+    FROM dep
+    </select>
+
+    <select id="queryDepInfo" parameterType="String" resultType="com.hrm.bean.Department">
+        SELECT *
+        FROM dep
+        WHERE 1=1
+        <if test="message != null and message!=''">
+            AND (depLeader like concat('%',#{message},'%')
+            OR depName  like concat('%',#{message},'%'))
+        </if>
+    </select>
+
+    <select id="queryByName" parameterType="STRING" resultType="com.hrm.bean.Department">
+    SELECT *
+    FROM dep
+    WHERE depName = #{depname}
+    </select>
+
+    <update id="updateDep" parameterType="com.hrm.bean.Department">
+            UPDATE dep
+            <set>
+                <if test="depname!=null and depname!=''">depName=#{depname},</if>
+                <if test="depleader!=null and depleader!=''">depLeader=#{depleader},</if>
+            </set>
+            WHERE depId = #{depid}
+    </update>
+
+    <select id="selectByExample" parameterType="com.hrm.bean.DepartmentExample" resultMap="BaseResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List" />
+        from dep
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from dep
+        where depId = #{depid,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from dep
+    where depId = #{depid,jdbcType=INTEGER}
+  </delete>
+    <delete id="deleteByExample" parameterType="com.hrm.bean.DepartmentExample">
+        delete from dep
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause" />
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.hrm.bean.Department">
+    insert into dep (depId, depLeader, depName
+      )
+    values (#{depid,jdbcType=INTEGER}, #{depleader,jdbcType=VARCHAR}, #{depname,jdbcType=VARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.hrm.bean.Department">
+        insert into dep
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="depid != null">
+                depId,
+            </if>
+            <if test="depleader != null">
+                depLeader,
+            </if>
+            <if test="depname != null">
+                depName,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="depid != null">
+                #{depid,jdbcType=INTEGER},
+            </if>
+            <if test="depleader != null">
+                #{depleader,jdbcType=VARCHAR},
+            </if>
+            <if test="depname != null">
+                #{depname,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.hrm.bean.DepartmentExample" resultType="java.lang.Long">
+        select count(*) from dep
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause" />
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update dep
+        <set>
+            <if test="record.depid != null">
+                depId = #{record.depid,jdbcType=INTEGER},
+            </if>
+            <if test="record.depleader != null">
+                depLeader = #{record.depleader,jdbcType=VARCHAR},
+            </if>
+            <if test="record.depname != null">
+                depName = #{record.depname,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update dep
+        set depId = #{record.depid,jdbcType=INTEGER},
+        depLeader = #{record.depleader,jdbcType=VARCHAR},
+        depName = #{record.depname,jdbcType=VARCHAR}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.hrm.bean.Department">
+        update dep
+        <set>
+            <if test="depleader != null">
+                depLeader = #{depleader,jdbcType=VARCHAR},
+            </if>
+            <if test="depname != null">
+                depName = #{depname,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where depId = #{depid,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.hrm.bean.Department">
+    update dep
+    set depLeader = #{depleader,jdbcType=VARCHAR},
+      depName = #{depname,jdbcType=VARCHAR}
+    where depId = #{depid,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.2.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+        http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task-4.2.xsd">
+    <!-- springmvc的配置文件,包含网页的跳转逻辑的控制,配置 -->
+    <context:component-scan base-package="com.hrm.controller"/>
+
+
+    <!-- 配置视图解析器,方便页面返回 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+    <!-- 两个标准配置 -->
+    <!-- 将springmvc不能处理的请求交给tomcat-->
+    <mvc:default-servlet-handler/>
+    <!-- 能支持springmvc更高级的一些功能 -->
+    <mvc:annotation-driven content-negotiation-manager="contentNegotiationManager" />
+
+    <!-- 配置用于session验证的拦截器 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!-- 开放登录权限 -->
+            <mvc:mapping path="/**"/>
+            <!--排除登录未登录时可访问的URL-->
+            <mvc:exclude-mapping path="/login/toLogin.html"/>
+            <mvc:exclude-mapping path="/login/loginCheck.html"/>
+            <mvc:exclude-mapping path="/registe/toRegiste.html"/>
+            <mvc:exclude-mapping path="/registe/userRegiste.html"/>
+            <mvc:exclude-mapping path="/forget/toForget.html"/>
+            <mvc:exclude-mapping path="/forget/sendVerifyCodeToEmail.html"/>
+            <mvc:exclude-mapping path="/forget/emailCheck.html"/>
+            <mvc:exclude-mapping path="/forget/emailCodeTest.html"/>
+            <bean class="com.hrm.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.hrm.interceptor.TokenInterceptor"/>
+        </mvc:interceptor>
+        
+        <mvc:interceptor>
+            <!-- 拦截修改页面 -->
+            <mvc:mapping path="/main/toModifyEmp.html"/>
+            <mvc:mapping path="/main/toModifyDep.html"/>
+            
+            <bean class="com.hrm.interceptor.AuthorityInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    
+    <mvc:resources mapping="/css/**" location="/css/"/>
+    <mvc:resources mapping="/js/**" location="/js/"/>
+    <!-- 以.html为后缀名访问，默认返回数据类型是 text/html， 所以要修改返回的数据类型 -->
+    <bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        <property name="mediaTypes">
+            <map>
+                <entry key="html" value="application/json;charset=UTF-8"/>
+            </map>
+        </property>
+    </bean>
+
+    <!-- 配置springMVC处理上传文件的信息 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="utf-8"/>
+        <property name="maxUploadSize" value="10485760000"/>
+        <property name="maxInMemorySize" value="40960"/>
+    </bean>
+
+</beans>

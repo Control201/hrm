@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrm.dao.EmployeeMapper">
+    <resultMap id="BaseResultMap" type="com.hrm.bean.Employee">
+      <id column="empId" jdbcType="INTEGER" property="empid" />
+      <result column="empName" jdbcType="VARCHAR" property="empname" />
+      <result column="empEmail" jdbcType="VARCHAR" property="empemail" />
+      <result column="gender" jdbcType="VARCHAR" property="gender" />
+      <result column="depId" jdbcType="INTEGER" property="depid" />
+    </resultMap>
+    <resultMap id="queryAll" type="com.hrm.bean.Employee">
+      <id column="empId" jdbcType="INTEGER" property="empid"/>
+      <result column="empName" jdbcType="VARCHAR" property="empname"/>
+      <result column="empEmail" jdbcType="VARCHAR" property="empemail"/>
+      <result column="gender" jdbcType="VARCHAR" property="gender"/>
+
+      <result column="phone" jdbcType="VARCHAR" property="phone"/>
+      <result column="depId" jdbcType="INTEGER" property="depid"/>
+      <collection property="department" ofType="com.hrm.bean.Department">
+        <id column="depId" property="depid"/>
+        <result column="depLeader" property="depleader"/>
+        <result column="depName" property="depname"/>
+      </collection>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+      <where>
+        <foreach collection="oredCriteria" item="criteria" separator="or">
+          <if test="criteria.valid">
+            <trim prefix="(" prefixOverrides="and" suffix=")">
+              <foreach collection="criteria.criteria" item="criterion">
+                <choose>
+                  <when test="criterion.noValue">
+                    and ${criterion.condition}
+                  </when>
+                  <when test="criterion.singleValue">
+                    and ${criterion.condition} #{criterion.value}
+                  </when>
+                  <when test="criterion.betweenValue">
+                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                  </when>
+                  <when test="criterion.listValue">
+                    and ${criterion.condition}
+                    <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                      #{listItem}
+                    </foreach>
+                  </when>
+                </choose>
+              </foreach>
+            </trim>
+          </if>
+        </foreach>
+      </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+      <where>
+        <foreach collection="example.oredCriteria" item="criteria" separator="or">
+          <if test="criteria.valid">
+            <trim prefix="(" prefixOverrides="and" suffix=")">
+              <foreach collection="criteria.criteria" item="criterion">
+                <choose>
+                  <when test="criterion.noValue">
+                    and ${criterion.condition}
+                  </when>
+                  <when test="criterion.singleValue">
+                    and ${criterion.condition} #{criterion.value}
+                  </when>
+                  <when test="criterion.betweenValue">
+                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                  </when>
+                  <when test="criterion.listValue">
+                    and ${criterion.condition}
+                    <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                      #{listItem}
+                    </foreach>
+                  </when>
+                </choose>
+              </foreach>
+            </trim>
+          </if>
+        </foreach>
+      </where>
+    </sql>
+    <sql id="Base_Column_List">
+      empId, empName, empEmail, gender, depId
+    </sql>
+
+    <select id="queryAll" resultType="com.hrm.dto.emp.empDepSearchDTO">
+        SELECT e.empId,e.empName,e.empEmail,e.gender,e.depId,e.phone,e.hiredate,e.notes,
+        d.depLeader,d.depName
+        FROM emp e
+        LEFT JOIN dep d
+        ON e.depId = d.depId
+    </select>
+
+    <select id="queryEmpInfo" parameterType="com.hrm.bean.Employee" resultType="com.hrm.dto.emp.empDepSearchDTO">
+        SELECT e.empId,e.empName,e.empEmail,e.gender,e.depId,e.phone,e.hiredate,e.notes,
+        d.depLeader,d.depName
+        FROM emp e
+        INNER JOIN dep d
+        ON e.depId = d.depId
+        <if test="empname!=null and empname!=''">
+            <bind name="pattern" value=" '%' + empname + '%'"></bind>
+            AND e.empName LIKE #{pattern}
+        </if>
+    </select>
+
+
+    <select id="queryByName" parameterType="STRING" resultType="com.hrm.bean.Employee">
+        SELECT *
+        FROM  emp
+        WHERE empName = #{empname}
+    </select>
+
+    <select id="queryById" parameterType="INTEGER" resultType="com.hrm.bean.Employee">
+       SELECT *
+       FROM emp
+       WHERE depId = #{depId}
+    </select>
+
+    <update id="updateEmp" parameterType="com.hrm.dto.emp.empDepSearchDTO">
+        UPDATE emp
+        <set>
+            <if test="empname!=null and empname!=''">empName=#{empname},</if>
+            <if test="empemail!=null and empemail!=''">empEmail=#{empemail},</if>
+            <if test="gender!=null and gender!=''">gender=#{gender},</if>
+            <if test="depid!=null and depid!=''">depId=#{depid},</if>
+            <if test="hiredateStr!=null and hiredateStr!=''">hiredate=#{hiredateStr},</if>
+            <if test="phone!=null and phone!=''">phone=#{phone},</if>
+            <if test="notes!=null and notes!=''">notes=#{notes},</if>
+        </set>
+        WHERE empId = #{empid}
+    </update>
+
+    <insert id="insertEmp" parameterType="com.hrm.dto.emp.empDepSearchDTO">
+        INSERT INTO
+        emp
+        (empName,empEmail,gender,depId,hiredate,phone,notes)
+        VALUES (#{empname},#{empemail},#{gender},#{depid},#{hiredate},#{phone},#{notes})
+    </insert>
+
+    <select id="selectByExample" parameterType="com.hrm.bean.EmployeeExample" resultMap="BaseResultMap">
+      select
+      <if test="distinct">
+        distinct
+      </if>
+      <include refid="Base_Column_List" />
+      from emp
+      <if test="_parameter != null">
+        <include refid="Example_Where_Clause" />
+      </if>
+      <if test="orderByClause != null">
+        order by ${orderByClause}
+      </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List" />
+      from emp
+      where empId = #{empid,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+      delete from emp
+      where empId = #{empid,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteByExample" parameterType="com.hrm.bean.EmployeeExample">
+      delete from emp
+      <if test="_parameter != null">
+        <include refid="Example_Where_Clause" />
+      </if>
+    </delete>
+    <insert id="insert" parameterType="com.hrm.bean.Employee">
+      insert into emp (empId, empName, empEmail,
+        gender, depId)
+      values (#{empid,jdbcType=INTEGER}, #{empname,jdbcType=VARCHAR}, #{empemail,jdbcType=VARCHAR},
+        #{gender,jdbcType=VARCHAR}, #{depid,jdbcType=INTEGER})
+    </insert>
+    <insert id="insertSelective" parameterType="com.hrm.bean.Employee">
+      insert into emp
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="empid != null">
+          empId,
+        </if>
+        <if test="empname != null">
+          empName,
+        </if>
+        <if test="empemail != null">
+          empEmail,
+        </if>
+        <if test="gender != null">
+          gender,
+        </if>
+        <if test="depid != null">
+          depId,
+        </if>
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="empid != null">
+          #{empid,jdbcType=INTEGER},
+        </if>
+        <if test="empname != null">
+          #{empname,jdbcType=VARCHAR},
+        </if>
+        <if test="empemail != null">
+          #{empemail,jdbcType=VARCHAR},
+        </if>
+        <if test="gender != null">
+          #{gender,jdbcType=VARCHAR},
+        </if>
+        <if test="depid != null">
+          #{depid,jdbcType=INTEGER},
+        </if>
+      </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.hrm.bean.EmployeeExample" resultType="java.lang.Long">
+      select count(*) from emp
+      <if test="_parameter != null">
+        <include refid="Example_Where_Clause" />
+      </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+      update emp
+      <set>
+        <if test="record.empid != null">
+          empId = #{record.empid,jdbcType=INTEGER},
+        </if>
+        <if test="record.empname != null">
+          empName = #{record.empname,jdbcType=VARCHAR},
+        </if>
+        <if test="record.empemail != null">
+          empEmail = #{record.empemail,jdbcType=VARCHAR},
+        </if>
+        <if test="record.gender != null">
+          gender = #{record.gender,jdbcType=VARCHAR},
+        </if>
+        <if test="record.depid != null">
+          depId = #{record.depid,jdbcType=INTEGER},
+        </if>
+      </set>
+      <if test="_parameter != null">
+        <include refid="Update_By_Example_Where_Clause" />
+      </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+      update emp
+      set empId = #{record.empid,jdbcType=INTEGER},
+        empName = #{record.empname,jdbcType=VARCHAR},
+        empEmail = #{record.empemail,jdbcType=VARCHAR},
+        gender = #{record.gender,jdbcType=VARCHAR},
+        depId = #{record.depid,jdbcType=INTEGER}
+      <if test="_parameter != null">
+        <include refid="Update_By_Example_Where_Clause" />
+      </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.hrm.bean.Employee">
+      update emp
+      <set>
+        <if test="empname != null">
+          empName = #{empname,jdbcType=VARCHAR},
+        </if>
+        <if test="empemail != null">
+          empEmail = #{empemail,jdbcType=VARCHAR},
+        </if>
+        <if test="gender != null">
+          gender = #{gender,jdbcType=VARCHAR},
+        </if>
+        <if test="depid != null">
+          depId = #{depid,jdbcType=INTEGER},
+        </if>
+      </set>
+      where empId = #{empid,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.hrm.bean.Employee">
+      update emp
+      set empName = #{empname,jdbcType=VARCHAR},
+        empEmail = #{empemail,jdbcType=VARCHAR},
+        gender = #{gender,jdbcType=VARCHAR},
+        depId = #{depid,jdbcType=INTEGER}
+      where empId = #{empid,jdbcType=INTEGER}
+    </update>
+  </mapper>

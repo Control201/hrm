@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrm.dao.UserMapper">
+
+  <select id="getUserByName" parameterType="String" resultType="com.hrm.bean.User">
+     select *
+     from user u
+     where u.name = #{username}
+  </select>
+
+  <select id="getUserByPwd" parameterType="String" resultType="com.hrm.bean.User">
+    select *
+    from user u
+    where u.password = #{password}
+  </select>
+
+  <select id="getUserByNickName" parameterType="String" resultType="com.hrm.bean.User">
+     SELECT *
+     FROM user u
+     WHERE u.nickname = #{nickname}
+  </select>
+
+  <select id="getUserByEmail" parameterType="String" resultType="com.hrm.bean.User">
+    select *
+    from user u
+    where u.email = #{email}
+  </select>
+
+  <select id="getUserByPhone" parameterType="String" resultType="com.hrm.bean.User">
+    select *
+    from user u
+    where u.phone = #{phone}
+  </select>
+
+   <select id="getUserById" parameterType="String" resultType="com.hrm.bean.User">
+       SELECT *
+       FROM user
+       WHERE id = #{id}
+   </select>
+
+  <insert id="insertUser" parameterType="com.hrm.bean.User">
+     INSERT INTO
+     user
+     (id,
+     name,
+     nickname,
+     password,
+     phone,
+     authority,
+     address,
+     email,
+     icon
+     )
+     VALUES (#{id},
+     #{name},
+     #{nickname},
+     #{password},
+     #{phone},
+     #{authority},
+     #{address},
+     #{email},
+     #{icon}
+     )
+  </insert>
+
+  <update id="resetPwdByEmail" parameterType="com.hrm.bean.User">
+      UPDATE user
+      SET
+      password = #{password}
+      WHERE email = #{email}
+  </update>
+
+    <update id="updateUser" parameterType="com.hrm.bean.User">
+        UPDATE user
+        <set>
+            <if test="id!=null and id!=''">id=#{id},</if>
+            <if test="name!=null and name!=''">name=#{name},</if>
+            <if test="nickname!=null and nickname!=''">nickname=#{nickname},</if>
+            <if test="icon!=null and icon!=''">icon=#{icon},</if>
+            <if test="password!=null and password!=''">password=#{password},</if>
+            <if test="phone!=null and phone!=''">phone=#{phone},</if>
+            <if test="address!=null and address!=''">address=#{address},</if>
+            <if test="authority!=null and authority!=''">authority=#{authority},</if>
+            <if test="email!=null and email!=''">email=#{email},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+</mapper>

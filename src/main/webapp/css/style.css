@@ -1,0 +1,10 @@
+
+
+@media (min-width: 768px) {
+    .sidebar {position: absolute;width: 250px;margin-top: 51px;z-index: 2;}
+}
+
+.sidebar ul li a.active {background-color: #eee;}
+.sidebar ul li {background: #f8f8f8;border-bottom: #e7e7e7 1px solid;}
+.nav-second-level li {border-bottom: 0 !important;}
+.nav-second-level li a {padding-left: 38px;}
